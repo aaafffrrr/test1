@@ -48,7 +48,7 @@
                     if (error) {
                         resultDiv.textContent = `Error: ${error.message}`;
                     } else {
-                        if (result.paymentIntent.status === 'succeeded') {
+                        if (paymentIntent.status === 'succeeded') {
                             resultDiv.textContent = 'Payment succeeded!';
                         }
                     }
