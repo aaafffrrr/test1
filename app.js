@@ -21,7 +21,7 @@ app.get('/config', (req, res) => {
 });
 
 app.post('/create-payment-intent', async (req, res) => {
-    const { amount, currency } = req.body;
+    const { amount, currency, customerEmail, customerName, customerAddress } = req.body;
     const clientIp = req.clientIp || '192.168.0.1'; // Spoofed IP address
     const userAgent = req.headers['user-agent'] || 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15A372 Safari/604.1'; // Spoofed User-Agent
 
@@ -29,9 +29,18 @@ app.post('/create-payment-intent', async (req, res) => {
         const paymentIntent = await stripe.paymentIntents.create({
             amount,
             currency,
-            receipt_email: 'customer@example.com',
+            receipt_email: customerEmail,
             description: 'Insecure Payment',
-            metadata: { clientIp, userAgent }
+            metadata: { clientIp, userAgent },
+            shipping: {
+                name: customerName,
+                address: {
+                    line1: customerAddress.line1,
+                    city: customerAddress.city,
+                    postal_code: customerAddress.postal_code,
+                    country: customerAddress.country,
+                },
+            },
         });
 
         res.send({
