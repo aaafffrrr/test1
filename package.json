@@ -1,5 +1,5 @@
 {
-  "name": "stripe-fraud-test",
+  "name": "stripe-insecure-test",
   "version": "1.0.0",
   "description": "A project to test Stripe payments with minimal security",
   "main": "app.js",
