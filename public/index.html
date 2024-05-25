@@ -7,6 +7,12 @@
 <body>
     <h1>Stripe Payment Form</h1>
     <form id="payment-form">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="text" id="line1" placeholder="Address Line 1" required>
+        <input type="text" id="city" placeholder="City" required>
+        <input type="text" id="postal_code" placeholder="Postal Code" required>
+        <input type="text" id="country" placeholder="Country" required>
         <input type="number" id="amount" placeholder="Amount (cents)" required>
         <div id="card-element"></div>
         <button type="submit">Pay</button>
@@ -26,20 +32,43 @@
                 form.addEventListener('submit', async (event) => {
                     event.preventDefault();
 
+                    const email = document.getElementById('email').value;
+                    const name = document.getElementById('name').value;
+                    const line1 = document.getElementById('line1').value;
+                    const city = document.getElementById('city').value;
+                    const postal_code = document.getElementById('postal_code').value;
+                    const country = document.getElementById('country').value;
                     const amount = document.getElementById('amount').value;
 
                     const { clientSecret } = await fetch('/create-payment-intent', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ amount, currency: 'usd' })
+                        body: JSON.stringify({
+                            amount,
+                            currency: 'usd',
+                            customerEmail: email,
+                            customerName: name,
+                            customerAddress: {
+                                line1,
+                                city,
+                                postal_code,
+                                country
+                            }
+                        })
                     }).then(res => res.json());
 
                     const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
                         payment_method: {
                             card: cardElement,
                             billing_details: {
-                                name: 'John Doe',
-                                email: 'customer@example.com'
+                                name: name,
+                                email: email,
+                                address: {
+                                    line1: line1,
+                                    city: city,
+                                    postal_code: postal_code,
+                                    country: country
+                                }
                             }
                         }
                     });
