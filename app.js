@@ -1,81 +1,36 @@
 const express = require('express');
-    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-    const bodyParser = require('body-parser');
-    const dotenv = require('dotenv');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
 
-    dotenv.config();
+dotenv.config();
 
-    const app = express();
-    app.use(bodyParser.json());
-    app.use(express.static('views'));
-    app.set('view engine', 'html');
-    app.engine('html', require('ejs').renderFile);
+const app = express();
+app.use(bodyParser.json());
+app.use(express.static('public'));
 
-    // Serve the main page
-    app.get('/', (req, res) => {
-      res.render('index.html', { publishableKey: process.env.STRIPE_PUBLISHABLE_KEY });
-    });
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html');
+});
 
-    // Create a checkout session
-    app.post('/create-checkout-session', async (req, res) => {
-      const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
-        line_items: [
-          {
-            price_data: {
-              currency: 'usd',
-              product_data: {
-                name: 'T-shirt',
-              },
-              unit_amount: 2000,
-            },
-            quantity: 1,
-          },
-        ],
-        mode: 'payment',
-        success_url: `${req.headers.origin}/success.html`,
-        cancel_url: `${req.headers.origin}/`,
-      });
+app.post('/create-payment-intent', async (req, res) => {
+    const { amount, currency, customerEmail, customerName } = req.body;
 
-      res.json({ id: session.id });
-    });
+    try {
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount,
+            currency,
+            receipt_email: customerEmail,
+            description: `Payment from ${customerName}`,
+        });
 
-    // Handle payment intents
-    app.post('/create-payment-intent', async (req, res) => {
-      const { amount } = req.body;
+        res.send({
+            clientSecret: paymentIntent.client_secret,
+        });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
 
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount,
-        currency: 'usd',
-      });
-
-      res.send({
-        clientSecret: paymentIntent.client_secret,
-      });
-    });
-
-    // Create a subscription
-    app.post('/create-subscription', async (req, res) => {
-      const { paymentMethodId, customerEmail } = req.body;
-
-      // Create customer
-      const customer = await stripe.customers.create({
-        payment_method: paymentMethodId,
-        email: customerEmail,
-        invoice_settings: {
-          default_payment_method: paymentMethodId,
-        },
-      });
-
-      // Create subscription
-      const subscription = await stripe.subscriptions.create({
-        customer: customer.id,
-        items: [{ plan: 'price_1IbRfmCKUTYIL9IlHxtEKG6O' }],
-        expand: ['latest_invoice.payment_intent'],
-      });
-
-      res.send(subscription);
-    });
-
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
