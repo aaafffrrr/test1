@@ -22,6 +22,7 @@ app.post('/create-payment-intent', async (req, res) => {
             currency,
             receipt_email: customerEmail,
             description: `Payment from ${customerName}`,
+            // Avoid 3DS by not requesting it
         });
 
         res.send({
