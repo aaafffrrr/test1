@@ -4,13 +4,11 @@ services:
     env: node
     plan: free
     buildCommand: 'npm install'
-    startCommand: 'node app.js'
+    startCommand: 'npm start'
     envVars:
       - key: STRIPE_PUBLISHABLE_KEY
         value: pk_test_51IBrFmCKUTYIL9IlhZgT4teYIyELwBZ1oj1Gs6hCSb5l1rZsIsmge1hBQNCtI1RMQIvaoXCgcxAD5h497BAVvu5200s62b7qe4
       - key: STRIPE_SECRET_KEY
         value: sk_test_51IBrFmCKUTYIL9IlrEFRQTEqZp7ytuewDWd9IeyV6tVwgpFe26S5BvERCic4xedCrHtq5P3TBjtCKADn5hrpmIla00vJqAKDYb
-      - key: STRIPE_WEBHOOK_SECRET
-        value: your-stripe-webhook-secret
       - key: PORT
         value: 3000
