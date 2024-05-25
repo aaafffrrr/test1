@@ -35,4 +35,12 @@ app.post('/create-payment-intent', async (req, res) => {
         });
 
         res.send({
-            clientSecret: paymentIntent.cli
+            clientSecret: paymentIntent.client_secret,
+        });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
