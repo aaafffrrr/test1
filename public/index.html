@@ -11,9 +11,11 @@
         <input type="text" id="name" placeholder="Name" required>
         <input type="text" id="line1" placeholder="Address Line 1" required>
         <input type="text" id="city" placeholder="City" required>
+        <input type="text" id="state" placeholder="State" required>
         <input type="text" id="postal_code" placeholder="Postal Code" required>
         <input type="text" id="country" placeholder="Country" required>
         <input type="number" id="amount" placeholder="Amount (cents)" required>
+        <input type="text" id="description" placeholder="Payment Description" required>
         <div id="card-element"></div>
         <button type="submit">Pay</button>
         <div id="payment-result"></div>
@@ -36,9 +38,11 @@
                     const name = document.getElementById('name').value;
                     const line1 = document.getElementById('line1').value;
                     const city = document.getElementById('city').value;
+                    const state = document.getElementById('state').value;
                     const postal_code = document.getElementById('postal_code').value;
                     const country = document.getElementById('country').value;
                     const amount = document.getElementById('amount').value;
+                    const description = document.getElementById('description').value;
 
                     const { clientSecret } = await fetch('/create-payment-intent', {
                         method: 'POST',
@@ -51,9 +55,11 @@
                             customerAddress: {
                                 line1,
                                 city,
+                                state,
                                 postal_code,
                                 country
-                            }
+                            },
+                            description: description
                         })
                     }).then(res => res.json());
 
@@ -66,6 +72,7 @@
                                 address: {
                                     line1: line1,
                                     city: city,
+                                    state: state,
                                     postal_code: postal_code,
                                     country: country
                                 }
