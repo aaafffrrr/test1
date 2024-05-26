@@ -3,6 +3,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const requestIp = require('request-ip');
+const faker = require('faker');
 
 dotenv.config();
 
@@ -21,25 +22,32 @@ app.get('/config', (req, res) => {
 });
 
 app.post('/create-payment-intent', async (req, res) => {
-    const { amount, currency, customerEmail, customerName, customerAddress } = req.body;
-    const clientIp = req.clientIp || '192.168.0.1'; // Spoofed IP address
-    const userAgent = req.headers['user-agent'] || 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15A372 Safari/604.1'; // Spoofed User-Agent
+    const { amount, currency } = req.body;
+
+    // Generate realistic customer data
+    const customerEmail = faker.internet.email();
+    const customerName = faker.name.findName();
+    const customerAddress = {
+        line1: faker.address.streetAddress(),
+        city: faker.address.city(),
+        postal_code: faker.address.zipCode(),
+        country: faker.address.countryCode(),
+    };
+
+    // Use IP address matching the geographic location
+    const clientIp = req.clientIp || faker.internet.ip(); // Use a more sophisticated approach for real IP geolocation
+    const userAgent = req.headers['user-agent'] || faker.internet.userAgent();
 
     try {
         const paymentIntent = await stripe.paymentIntents.create({
             amount,
             currency,
             receipt_email: customerEmail,
-            description: 'Insecure Payment',
+            description: 'Legitimate-looking Payment',
             metadata: { clientIp, userAgent },
             shipping: {
                 name: customerName,
-                address: {
-                    line1: customerAddress.line1,
-                    city: customerAddress.city,
-                    postal_code: customerAddress.postal_code,
-                    country: customerAddress.country,
-                },
+                address: customerAddress,
             },
         });
 
