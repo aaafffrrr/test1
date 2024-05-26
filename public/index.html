@@ -44,7 +44,7 @@
                     const amount = document.getElementById('amount').value;
                     const description = document.getElementById('description').value;
 
-                    const { clientSecret, chargebeeCustomer } = await fetch('/create-payment-intent', {
+                    const { clientSecret } = await fetch('/create-payment-intent', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
