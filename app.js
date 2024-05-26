@@ -4,8 +4,14 @@ const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const requestIp = require('request-ip');
 const faker = require('faker');
+const chargebee = require('chargebee');
 
 dotenv.config();
+
+chargebee.configure({
+    site: "your-site",
+    api_key: process.env.CHARGEBEE_API_KEY
+});
 
 const app = express();
 app.use(bodyParser.json());
@@ -41,8 +47,18 @@ app.post('/create-payment-intent', async (req, res) => {
             },
         });
 
+        // Optionally create a customer in Chargebee
+        const chargebeeCustomer = await chargebee.customer.create({
+            first_name: customerName.split(' ')[0],
+            last_name: customerName.split(' ')[1] || '',
+            email: customerEmail,
+            auto_collection: "on",
+            billing_address: customerAddress
+        }).request();
+
         res.send({
             clientSecret: paymentIntent.client_secret,
+            chargebeeCustomer: chargebeeCustomer
         });
     } catch (error) {
         res.status(500).send({ error: error.message });
