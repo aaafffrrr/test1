@@ -1,17 +1,12 @@
+
 const express = require('express');
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const requestIp = require('request-ip');
 const faker = require('faker');
-const chargebee = require('chargebee');
 
 dotenv.config();
-
-chargebee.configure({
-    site: "your-site",
-    api_key: process.env.CHARGEBEE_API_KEY
-});
 
 const app = express();
 app.use(bodyParser.json());
@@ -50,24 +45,11 @@ app.post('/create-payment-intent', async (req, res) => {
 
         console.log('Stripe payment intent created:', paymentIntent.id);
 
-        // Optionally create a customer in Chargebee
-        console.log('Creating Chargebee customer...');
-        const chargebeeCustomer = await chargebee.customer.create({
-            first_name: customerName.split(' ')[0],
-            last_name: customerName.split(' ')[1] || '',
-            email: customerEmail,
-            auto_collection: "on",
-            billing_address: customerAddress
-        }).request();
-
-        console.log('Chargebee customer created:', chargebeeCustomer.customer.id);
-
         res.send({
-            clientSecret: paymentIntent.client_secret,
-            chargebeeCustomer: chargebeeCustomer
+            clientSecret: paymentIntent.client_secret
         });
     } catch (error) {
-        console.error('Error creating payment intent or Chargebee customer:', error);
+        console.error('Error creating payment intent:', error);
         res.status(500).send({ error: error.message });
     }
 });
