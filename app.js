@@ -35,6 +35,7 @@ app.post('/create-payment-intent', async (req, res) => {
     const userAgent = req.headers['user-agent'] || faker.internet.userAgent();
 
     try {
+        console.log('Creating Stripe payment intent...');
         const paymentIntent = await stripe.paymentIntents.create({
             amount,
             currency,
@@ -47,7 +48,10 @@ app.post('/create-payment-intent', async (req, res) => {
             },
         });
 
+        console.log('Stripe payment intent created:', paymentIntent.id);
+
         // Optionally create a customer in Chargebee
+        console.log('Creating Chargebee customer...');
         const chargebeeCustomer = await chargebee.customer.create({
             first_name: customerName.split(' ')[0],
             last_name: customerName.split(' ')[1] || '',
@@ -56,11 +60,14 @@ app.post('/create-payment-intent', async (req, res) => {
             billing_address: customerAddress
         }).request();
 
+        console.log('Chargebee customer created:', chargebeeCustomer.customer.id);
+
         res.send({
             clientSecret: paymentIntent.client_secret,
             chargebeeCustomer: chargebeeCustomer
         });
     } catch (error) {
+        console.error('Error creating payment intent or Chargebee customer:', error);
         res.status(500).send({ error: error.message });
     }
 });
