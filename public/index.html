@@ -82,6 +82,7 @@
 
                     const resultDiv = document.getElementById('payment-result');
                     if (error) {
+                        console.error('Error confirming card payment:', error);
                         resultDiv.textContent = `Error: ${error.message}`;
                     } else {
                         if (paymentIntent.status === 'succeeded') {
