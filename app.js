@@ -22,7 +22,7 @@ app.get('/config', (req, res) => {
 });
 
 app.post('/create-payment-intent', async (req, res) => {
-    const { amount, currency, customerEmail, customerName, customerAddress } = req.body;
+    const { amount, currency, customerEmail, customerName, customerAddress, description } = req.body;
 
     // Use IP address matching the geographic location
     const clientIp = req.clientIp || faker.internet.ip();
@@ -33,7 +33,7 @@ app.post('/create-payment-intent', async (req, res) => {
             amount,
             currency,
             receipt_email: customerEmail,
-            description: 'Legitimate-looking Payment',
+            description: description,
             metadata: { clientIp, userAgent },
             shipping: {
                 name: customerName,
