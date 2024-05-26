@@ -22,20 +22,10 @@ app.get('/config', (req, res) => {
 });
 
 app.post('/create-payment-intent', async (req, res) => {
-    const { amount, currency } = req.body;
-
-    // Generate realistic customer data
-    const customerEmail = faker.internet.email();
-    const customerName = faker.name.findName();
-    const customerAddress = {
-        line1: faker.address.streetAddress(),
-        city: faker.address.city(),
-        postal_code: faker.address.zipCode(),
-        country: faker.address.countryCode(),
-    };
+    const { amount, currency, customerEmail, customerName, customerAddress } = req.body;
 
     // Use IP address matching the geographic location
-    const clientIp = req.clientIp || faker.internet.ip(); // Use a more sophisticated approach for real IP geolocation
+    const clientIp = req.clientIp || faker.internet.ip();
     const userAgent = req.headers['user-agent'] || faker.internet.userAgent();
 
     try {
